@@ -1,0 +1,87 @@
+1.
+
+SELECT 
+s3.CustomerId,
+s3.FirstName,
+s3.Phone,
+s3.Company
+FROM InvoiceLine s1
+INNER JOIN Customer s3 on s2.CustomerId = s3.CustomerId
+INNER JOIN Invoice s2 on s1.InvoiceId = s2.InvoiceId
+INNER JOIN Track s4 on s1.TrackId = s4.TrackId
+INNER JOIN Genre s5 on s4.GenreId = s5.GenreId
+INNER JOIN Employee s6 on s3.SupportRepId = s6.EmployeeId
+WHERE s5.Name != 'Rock' and date('now')-s6.BirthDate >50
+GROUP by s3.FirstName
+ORDER by s3.City ASC, s3.Email DESC
+LIMIT 10
+
+2.
+
+SELECT 
+s1.LastName,
+s1.FirstName,
+s1.Phone,
+s2.LastName,
+s2.FirstName,
+s2.Phone
+FROM Employee s1
+LEFT JOIN Employee s2 on s1.ReportsTo = s2.EmployeeId
+
+3.
+
+SELECT 
+s3.FirstName,
+s3.Phone
+FROM InvoiceLine s1
+INNER JOIN Customer s3 on s2.CustomerId = s3.CustomerId
+INNER JOIN Invoice s2 on s1.InvoiceId = s2.InvoiceId
+INNER JOIN Track s4 on s1.TrackId = s4.TrackId
+WHERE s4.UnitPrice = (SELECT max(UnitPrice) from Track)
+GROUP by s3.FirstName 
+ORDER by s3.FirstName ASC
+
+4.
+
+SELECT 
+s3.LastName,
+s3.FirstName,
+s3.Phone
+FROM InvoiceLine s1
+INNER JOIN Customer s3 on s2.CustomerId = s3.CustomerId
+INNER JOIN Invoice s2 on s1.InvoiceId = s2.InvoiceId
+WHERE
+(SELECT COUNT(*) as count FROM Customer WHERE City = s3.City) > 1
+GROUP by s3.FirstName
+
+5.
+
+SELECT 
+BillingCity 
+from Invoice
+group by BillingCity
+ORDER by sum(total) DESC
+limit 3
+
+6.
+
+SELECT 
+s2.Name,
+s1.Name,
+s3.Title,
+s4.Name
+FROM Track s1
+INNER JOIN Genre s2 on s1.GenreId = s2.GenreId
+INNER JOIN Album s3 on s1.AlbumId = s3.AlbumId
+INNER JOIN Artist s4 on s3.ArtistId = s4.ArtistId
+WHERE (SELECT Name FROM(
+SELECT 
+Name,
+MAX (count)
+FROM (SELECT 
+s3.Name,
+count(*) as count
+FROM InvoiceLine s1
+INNER JOIN Track s2 on s1.TrackId = s2.TrackId
+INNER JOIN Genre s3 on s2.GenreId = s3.GenreId
+GROUP by s3.name))) = s2.Name
